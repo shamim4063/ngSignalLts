@@ -1,0 +1,42 @@
+<div class="card">
+  <div class="card-body">
+    <h3>List Of Example Product</h3>
+    <app-search (onSearch)="searchTerm$.next($event)" />
+    <table
+      class="table table-striped"
+      *ngIf="products().length; else noProduct"
+    >
+      <thead>
+        <th>#</th>
+        <th>Title</th>
+        <th>Brand</th>
+        <th>Price</th>
+        <th>Remove</th>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of products()">
+          <td>{{ product.id }}</td>
+          <td>{{ product.title }}</td>
+          <td>{{ product.brand }}</td>
+          <td>${{ product.price | number : "1.2-2" }}</td>
+          <td>
+            <div class="d-flex actions">
+              <span (click)="onDelete(product.id)">
+                <i class="fa-solid fa-trash-can"></i>
+              </span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <app-paginator
+      *ngIf="products().length"
+      [totalItems]="totalItems()"
+      [currentPage]="currentPage()"
+      (onPageChange)="pageChange($event)"
+    />
+    <ng-template #noProduct>
+      <h5>No Product Found</h5>
+    </ng-template>
+  </div>
+</div>
