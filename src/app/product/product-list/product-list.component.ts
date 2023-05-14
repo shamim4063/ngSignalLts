@@ -4,14 +4,14 @@ import { catchError, EMPTY, map, Subject, switchMap, takeUntil, tap } from 'rxjs
 import { ProductService } from 'src/app/product/product.service';
 import { RouterModule } from '@angular/router';
 import { Product } from 'src/app/models/products.output.dto';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormsModule } from '@angular/forms';
 import { SearchComponent } from 'src/app/common/search/search.component';
 import { PaginatorComponent } from 'src/app/common/paginator/paginator.component';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, SearchComponent, PaginatorComponent],
+  imports: [CommonModule, FormsModule, RouterModule, SearchComponent, PaginatorComponent],
   providers: [ProductService],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss'],
@@ -26,7 +26,7 @@ export class ProductListComponent implements OnDestroy {
 
   totalItems = signal(0);
   currentPage = signal(1);
-  readonly itemsPerPage = 10;
+  itemsPerPage = signal(15);
   searchTerm = '';
 
   subscription$ = new Subject<void>();
@@ -36,8 +36,8 @@ export class ProductListComponent implements OnDestroy {
     this.registerSearchListener();
   }
 
-  private fetchProducts() {
-    this.productService.getProducts(this.itemsPerPage, ((this.currentPage() - 1) * this.itemsPerPage), this.searchTerm)
+  fetchProducts() {
+    this.productService.getProducts(this.itemsPerPage(), ((this.currentPage() - 1) * this.itemsPerPage()), this.searchTerm)
       .pipe(
         map(({ products, total }) => ({ products, total }))
       )
@@ -54,7 +54,7 @@ export class ProductListComponent implements OnDestroy {
         this.searchTerm = text;
         this.currentPage.set(1);
       }),
-      switchMap(text => this.productService.getProducts(this.itemsPerPage, ((this.currentPage() - 1) * this.itemsPerPage), text)
+      switchMap(text => this.productService.getProducts(this.itemsPerPage(), ((this.currentPage() - 1) * this.itemsPerPage()), text)
         .pipe(
           catchError(() => EMPTY),
           map(({ products, total }) => ({ products, total }))
